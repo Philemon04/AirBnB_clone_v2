@@ -1,13 +1,37 @@
 #!/usr/bin/env bash
-# Script that configures Nginx server with some folders and files
-apt-get -y update
-apt-get -y install nginx
-service nginx start
-mkdir -p /data/web_static/releases/test/
-mkdir -p /data/web_static/shared/
-echo "Hello World!, Am happy learning to deploy my website! Yeey!" > /data/web_static/releases/test/index.html
-ln -sf /data/web_static/releases/test/ /data/web_static/current
-chown -R ubuntu:ubuntu /data/
-sed -i '38i\\tlocation /hbnb_static/ {\n\t\talias /data/web_static/current/;\n\t\tautoindex off;\n\t}\n' /etc/nginx/sites-available/default
-service nginx restart
-exit 0
+# Sets up your web servers for the deployment of web_static
+sudo apt-get -y update
+
+# Install nginx
+sudo apt-get -y install nginx
+sudo ufw allow 'Nginx HTTP'
+# Create folders
+sudo mkdir -p /data/web_static/releases/test/
+sudo mkdir -p /data/web_static/shared/
+
+# Create HMTL 
+sudo touch /data/web_static/releases/test/index.html
+echo "
+<html>
+ <head>
+   <title>
+   The title of your page
+   </title>
+ </head>
+ 
+ <body>
+   Your page content goes here.
+ </body>
+ </html>" > sudo /data/web_static/releases/test/index.html
+
+# Symbolic link
+sudo ln -sfn /data/web_static/releases/test/ /data/web_static/current
+
+# Create ownership
+sudo chown -R ubuntu:ubuntu /data/
+
+# Setup nginx
+sudo sed -i '/listen 80 default_server/a location /hbnb_static/ {alias /data/web_static/current/;}' /etc/nginx/sites-available/default
+
+#Restart nginx
+sudo service nginx restart
